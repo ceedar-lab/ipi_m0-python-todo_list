@@ -1,0 +1,8 @@
+INSERT INTO user (name) VALUES ('Clément');
+INSERT INTO user (name) VALUES ('Manahele');
+INSERT INTO task (title, creator) VALUES ('Projet Python', 1);
+INSERT INTO task (title, creator) VALUES ('Projet SQL', 1);
+INSERT INTO sub_task (title, id_task) VALUES ('Créer page de connection', 1);
+INSERT INTO sub_task (title, id_task) VALUES ('Créer widget bloc-note', 1);
+INSERT INTO sub_task (title, id_task) VALUES ('Créer 8 tables', 2);
+INSERT INTO sub_task (title, id_task) VALUES ('Créer 4 requêtes', 2);

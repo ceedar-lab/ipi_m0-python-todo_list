@@ -1,0 +1,25 @@
+CREATE TABLE task (
+  id_task INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  creator INTEGER NOT NULL,
+  FOREIGN KEY (creator) REFERENCES user (id_user)
+);
+
+CREATE TABLE sub_task (
+  id_subtask INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  id_task INTEGER NOT NULL,
+  FOREIGN KEY (id_task) REFERENCES task (id_task)
+);
+
+CREATE TABLE assignee (
+  id_user INTEGER NOT NULL,
+  id_subtask INTEGER NOT NULL,
+  FOREIGN KEY (id_user) REFERENCES user (id_user),
+  FOREIGN KEY (id_subtask) REFERENCES sub_task (id_subtask)
+);
+
+CREATE TABLE user (
+  id_user INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL
+);

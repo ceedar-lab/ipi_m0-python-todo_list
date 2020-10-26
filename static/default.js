@@ -75,12 +75,20 @@ function createWidget(number) {
                             <div class="widget__content">
                                 <div class="widget__content_select -hide">
                                     <select id="widget_list_${i}">
+                                        <option value="todoList">Bloc note</options>
                                         <option value="calculator">Calculatrice</options>
                                         <option value="chronometre">Chronomètre</options>
                                         <option value="meteo">Méteo</options>
                                         <option value="radio">Radio</options>
                                     </select>
                                     <button id="widget_list_button_${i}">Valider</button>
+                                </div>
+                                <div id="todoList_${i}" class="widget__content_todoList">
+                                    <div class="todoList__taskList">                                    
+                                        <select id="taskList_${i}">
+                                        </select>
+                                        <button id="taskList_button_${i}">Go</button>
+                                    </div>
                                 </div>
                                 <div id="calculator_${i}" class="widget__content_calculator -hide">
                                     <div id="calculator__screen">
@@ -330,12 +338,21 @@ function widgetSelectorInit() {
     for (let i = 0; i < widget_number; i++) {
         document.getElementById(`widget_list_button_${i}`).addEventListener('click', () => {
             let widget_value = document.getElementById(`widget_list_${i}`).value
+            if (widget_value == 'todoList') {
+                todoList()
+            }
             showWidget(i, widget_value)
             document.querySelector(`#widget_${i} .fa-cog`).addEventListener('click', () => {
                 if (widget_is_used[i]) removeWidget(i, widget_is[i])
             })
         })
     }
+}
+
+// 
+function todoList() {
+    let col = JSON.parse('{{ colors | tojson | safe }}')
+    document.getElementById('widget__container').innerHTML = "<p>" + colors.val1 + "</p>"
 }
 
 // Affiche le widget
