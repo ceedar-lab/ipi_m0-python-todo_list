@@ -1,37 +1,40 @@
-function do_ajax() {
-    var req = new XMLHttpRequest();
-    var result = document.getElementById('result');
-    req.onreadystatechange = function()
-    {
-      if(this.readyState == 4 && this.status == 200) {
-        result.innerHTML = this.responseText;
-      } else {
-        result.innerHTML = "処理中...";
-      }
-    }
+let form_addTask = { 'state': 0 }
+let form_removeTask = { 'state': 0 }
 
-    req.open('POST', '/', true);
-    req.setRequestHeader('content-type', 'application/x-www-form-urlencoded;charset=UTF-8');
-    req.send("name=" + document.getElementById('name').value);
+addTask()
+removeTask()
+
+function addTask() {  
+    let addTaskMenu_state = 0
+    document.getElementById('button_addTask').addEventListener('click', () => {
+        if (form_removeTask.state == 1) { hide('removeTask_confirm', form_removeTask); hide('noTask_alert', form_removeTask) }
+        if (form_addTask.state == 0) show('form_addTask', form_addTask)
+        else hide('form_addTask', form_addTask)        
+    })
 }
 
-function req_show_color() {    
-  let xhr = new XMLHttpRequest
-  xhr.open('POST', '/', true)
-  xhr.setRequestHeader('content-type', 'application/x-www-form-urlencoded;charset=UTF-8');
-  xhr.send("name=" + document.getElementById('name2').value)
-  xhr.onload = () => {
-      if (xhr.readyState == 4 && xhr.status == 200) show_color(xhr.responseText)
-      else show_color('pas de réponse')
-  }
+function removeTask() {
+    let form = document.getElementById("form_removeTask")
+    document.getElementById("button_removeTask").addEventListener('click', () => {
+        if (form_addTask.state == 1) hide('form_addTask', form_addTask)
+        if (form.dataset.idTask == "0" && form_removeTask.state == 0) show('noTask_alert', form_removeTask)
+        else if (form.dataset.idTask != "0" && form_removeTask.state == 0) show('removeTask_confirm', form_removeTask)
+        else { hide('removeTask_confirm', form_removeTask); hide('noTask_alert', form_removeTask) }
+    })
 }
 
-function show_color(res) {
-  let form = document.getElementById("form2")
-  let html = `<div>
-                <p>${res}</p>
-              </div>`
-  form.insertAdjacentHTML('afterend', html)
+function show(id, stateId) {
+    document.getElementById(id).classList.remove('-hide')
+    stateId.state = 1
 }
 
-document.getElementById("btn-post2").addEventListener('click', req_show_color)
+function hide(id, stateId) {
+    document.getElementById(id).classList.add('-hide')
+    stateId.state = 0
+}
+
+(function autoSubmit() {
+    document.getElementById("taskList").addEventListener('change', () => {
+        document.getElementById("form_taskList").submit()
+    })
+})()
