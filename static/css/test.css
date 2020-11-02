@@ -1,7 +1,6 @@
 * {
     box-sizing: border-box;
 }
-
 .widget__content_todoList {
     background: rgba(255,255,0,0.4);
     width: 400px;
@@ -10,11 +9,9 @@
     margin-top: 50px;
     padding: 5px;
 }
-
 .todoList {
     margin: 5px;
 }
-
 .todoList__head {
     position: relative;
     display: flex;
@@ -22,24 +19,41 @@
     background: rgba(255,255,0,0.6);;
     height: 10%;
 }
-
 .todoList__body {
     background: rgba(255,255,0,0.6);;
     height: 78%;
 }
-
 .todoList__foot {
     display: flex;
     justify-content: space-evenly;
     background: rgba(255,255,0,0.6);;
     height: 8%;
 }
-
 #form_addTask, #form_removeTask {
     position: absolute;
     bottom: -75px;
 }
-
+.form_editSubTask {
+    position: absolute;
+    top: -5px;
+}
+.subTaskList__title {
+    position: relative;
+}
 .-hide {
     display: none;
+}
+.-row {
+    display: flex;
+    flex-direction: row;
+}
+.-col {
+    display: flex;
+    flex-direction: column;
+}
+.-se {
+    justify-content: space-evenly;
+}
+.-sb {
+    justify-content: space-between;
 }

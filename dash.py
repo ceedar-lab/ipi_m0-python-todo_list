@@ -43,41 +43,66 @@ assignee = db.Table('assignee',
 
 @app.route('/', methods=['POST', 'GET'])
 def add_task():
-    session_user = 1  
-    session_task = 0
-    tasks = Task.query.filter_by(creator=session_user).order_by(Task.date_created).all() 
-    task = Task.query.filter_by(id_task=session_task).all()
+    id_user = 1
+    tasks = Task.query.filter_by(creator=id_user).order_by(Task.date_created).all()
      
     if request.method == 'POST':
         # Selection de la tache à afficher
         if 'taskList' in request.form:
-            session_task = request.form['taskList']
-            subTasks = SubTask.query.filter_by(id_task=session_task).all()
-            task = Task.query.get(session_task)
-            return render_template('test.html', task=task, subTasks=subTasks, tasks=tasks, session_task=session_task)
+            id_task = request.form['taskList']
+            subTasks = SubTask.query.filter_by(id_task=id_task).all()
+            task = Task.query.get(id_task)
+            value = 0
+            return render_template('test.html', task=task, subTasks=subTasks, tasks=tasks, value=value)
         # Ajout d'une tache
         elif 'add_task' in request.form:
             task_content = request.form['add_task']
-            new_task = Task(title=task_content, creator=session_user)
+            new_task = Task(title=task_content, creator=id_user)
             db.session.add(new_task)
             db.session.commit()
             task = Task.query.order_by(Task.date_created.desc()).first()
-            session_task = task.id_task
-            tasks = Task.query.filter_by(creator=session_user).order_by(Task.date_created).all()
-            return render_template('test.html', tasks=tasks, session_task=session_task)
+            tasks = Task.query.filter_by(creator=id_user).order_by(Task.date_created).all()
+            return render_template('test.html', task=task, tasks=tasks)
         # Suppression d'une tache
         elif 'remove_task' in request.form: 
-            session_task = request.form['session_task']        
-            Task.query.filter_by(id_task=session_task).delete()
-            SubTask.query.filter_by(id_task=session_task).delete()
+            id_task = request.form['id_task']        
+            Task.query.filter_by(id_task=id_task).delete()
+            SubTask.query.filter_by(id_task=id_task).delete()
             db.session.commit()
             return redirect('/')
-        else:
-            str = 'nothing'
-            return render_template('test.html', str=str)
+        # Ajout d'une sous tache
+        elif 'add_subTask' in request.form:
+            subTask_content = request.form['add_subTask']
+            id_task = request.form['id_task']
+            new_subTask = SubTask(title=subTask_content, id_task=id_task)
+            db.session.add(new_subTask)
+            db.session.commit()
+            task = Task.query.get(id_task)
+            subTasks = SubTask.query.filter_by(id_task=id_task).all()
+            return render_template('test.html', task=task, subTasks=subTasks, tasks=tasks)
+        # Suppression de sous tache
+        elif 'remove_subTask' in request.form:
+            id_task = request.form['id_task']
+            id_subTask = request.form['id_subTask']
+            SubTask.query.filter_by(id_subtask=id_subTask).delete()
+            db.session.commit()
+            task = Task.query.get(id_task)
+            subTasks = SubTask.query.filter_by(id_task=id_task).all()
+            return render_template('test.html', task=task, subTasks=subTasks, tasks=tasks)
+        # Modification de sous tache
+        elif 'edit_subTask' in request.form:
+            subTask_content = request.form['edit_subTask']
+            id_task = request.form['id_task']
+            id_subTask = request.form['id_subTask']
+            SubTask.query.filter_by(id_subtask=id_subTask).update({SubTask.title: subTask_content})
+            db.session.commit()
+            task = Task.query.get(id_task)
+            subTasks = SubTask.query.filter_by(id_task=id_task).all()
+            return render_template('test.html', task=task, subTasks=subTasks, tasks=tasks)
 
-    else:
-        return render_template('test.html', task=task, tasks=tasks, session_task=session_task)
+    else: 
+        task = Task.query.get(0)
+        return render_template('test.html', task=task, tasks=tasks)
 
 
 #         task_content = request.form['task_content']
