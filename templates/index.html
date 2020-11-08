@@ -1,52 +1,87 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <link rel="stylesheet" href="/static/css/theme-default.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard CDEV Camp</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/default.css">
-    <script src="https://kit.fontawesome.com/bb146a6d61.js" crossorigin="anonymous"></script>
-    <script type="text/javascript" src="/static/default.js" async></script>
-    <link href="https://fonts.googleapis.com/css2?family=Audiowide&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/default.css">
+    <script src="/static/default.js" async></script>
+    <title>Document</title>
 </head>
-
 <body>
-    <header class="body__header">
-        <div>
-            <img id="dashboard_logo" src="/static/images/logo-cdev_camp-green.png" alt="logo">
-            <h1>Dashboard</h1>
+    <div id="todoList_${i}" class="widget__content_todoList">
+        <div class="todoList todoList__head">
+            <button id="button_addTask">+ Add Task</button>
+            <button id="button_removeTask">- Remove Task</button>
+            <button id="button_addAssignee">+ Add Ass</button>
+            <form action="/" method="post" id="form_addTask" class="-hide">
+                <input type="text" name="add_task" id="">
+                <input type="submit" value="Ajouter">
+            </form>
+            <form action="/" method="post" id="form_removeTask" class="" data-id-task="{{ task.id_task }}">
+                <p id="noTask_alert" class="-hide">Aucune tache selectionée</p>
+                <div id="removeTask_confirm" class="-hide">
+                    <p>Etes vous sur de vouloir supprimer cette tache ?</p>
+                    <input type="submit" name="remove_task" value="OK">
+                    <button type="button" onclick="hide('removeTask_confirm', form_removeTask)">Annuler</button>
+                </div>
+            </form>
+            <form action="/" method="post" id="form_addAssignee" class="-hide">
+                <input type="text" name="add_assignee" id="">
+                <input type="submit" value="Search">
+            </form>
         </div>
-        <div>
-            <input type="checkbox" id="dashboard_config" class="-hide">
-            <label for="dashboard_config">Configuration&nbsp;&nbsp;<i class="fas fa-chevron-circle-down"></i></label>
-            <ul class="-hide">
-                <ul>
-                    <li><label for="theme">Thème :</label></li>
-                    <li>
-                        <select id="theme">
-                        <option value="default">Default</option>
-                        <option value="blue">Midnight</option>
-                        <option value="red">Inferno</option>
-                        </select>
-                    </li>
-                </ul>
-                <ul>
-                    <li><label for="widget_number">Nombre de widgets :</label></li>
-                    <li class="-column"><input type="text" id="widget_number" placeholder="Max. 20"></li>
-                </ul>
-                <ul>
-                    <li><label for="widget_per_row">Widgets par ligne :</label></li>
-                    <li><input type="range" id="widget_per_row" min="1" max="5" value="3"></li>
-                </ul>
-            </ul>
+        <div class="todoList todoList__body">
+            <div id="errorMessage" class="-hide">
+                <p id="errorMessage_content">{{ errorMessage }}</p>
+                <button id="errorMessage_ok">OK</button>
+            </div>
+            <div class="-col">
+            {% block content %}
+                {% if task.id_task != null %}
+                <div class="-row -sb">
+                    <h2>{{ task.title }}</h2>
+                    <button style="height: 50%; margin-top: 25px;" id="button_addSubTask">+ Add SubTask</button>
+                </div>                    
+                <form action="/" method="post" id="form_addSubTask" class="-hide">
+                    <div class="-row">
+                        <input type="text" name="add_subTask" id="">
+                        <input type="submit" value="Ajouter">
+                    </div>
+                </form>
+                {% endif %}
+            {% endblock content %}
+            </div>
+            <div>
+            {% for subTask in subTasks %}
+                <form action="/" method="POST" class="subTaskList__subTask">
+                    <div class="subTaskList__title">
+                        <div class="-row">
+                            <input type="checkbox" name="" id="" class="subTask_validator" data-subtask-state="{{ subTask.status }}">
+                            <p>{{ subTask.title }}</p>
+                        </div>
+                        <div class="form_editSubTask -hide">
+                            <input type="text" name="edit_subTask" value="{{ subTask.title }}">
+                            <input type="submit" value="OK">
+                        </div>
+                    </div>
+                    <input type="hidden" name="id_subTask" value="{{ subTask.id_subtask }}">
+                    <input type="hidden" name="subTask_state" class="subTask_state" value=1>
+                    <button type="button" class="button_editSubTask">Edit</button>
+                    <button name="remove_subTask">Del</button>
+                </form>                
+            {% endfor %}
+            </div>
         </div>
-    </header>
-    <main id="widget__container">
-        <section>
-        </section>
-    </main>
+        <div class="todoList todoList__foot">
+            <form action="/" method="POST" id="form_taskList">
+                <select name="taskList" id="taskList">
+                    <option selected hidden>Choisissez une tache</option>
+                    {% for task in tasks %}
+                    <option value="{{ task.id_task }}">{{ task.title }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+    </div>
 </body>
-
 </html>
