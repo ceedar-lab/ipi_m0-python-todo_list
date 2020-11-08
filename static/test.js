@@ -8,12 +8,36 @@ for (let i = 0; i < document.getElementsByClassName("button_editSubTask").length
     form_editSubTask[i] = 0
 }
 
+console.log(document.getElementsByClassName("subTask_validator").length)
+
 addTask()
 removeTask()
 addAssignee()
 addSubTask()
 editSubTask()
 taskAlreadyExists()
+subTaskValidator()
+
+function subTaskValidator() {
+    let subTask_validator = document.getElementsByClassName("subTask_validator")
+    for (let j = 0; j < subTask_validator.length; j++) {
+        if (subTask_validator[j].dataset.subtaskState == 0) {
+            subTask_validator[j].checked = true
+            subTask_validator[j].nextElementSibling.classList.add('-line')
+        }
+        subTask_validator[j].addEventListener('click', (e) => {
+            if (e.target.checked) {
+                e.target.nextElementSibling.classList.add('-line')
+                document.getElementsByClassName("subTask_state")[j].value = 0
+                document.getElementsByClassName("subTaskList__subTask")[j].submit()
+            } else {
+                e.target.nextElementSibling.classList.remove('-line')
+                document.getElementsByClassName("subTask_state")[j].value = 1
+                document.getElementsByClassName("subTaskList__subTask")[j].submit()
+            }
+        })
+    }
+}
 
 function addTask() { 
     document.getElementById('button_addTask').addEventListener('click', () => {

@@ -7,10 +7,15 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///dashboard.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app) 
 
+assignee = db.Table('assignee',
+    db.Column('id_user', db.Integer, db.ForeignKey('user.id_user')),
+    db.Column('id_task', db.Integer, db.ForeignKey('task.id_task'))
+)
+
 class User(db.Model):
     id_user = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False, unique=True)
-    tasks = db.relationship('Task', backref='user', lazy=True)
+    tasks = db.relationship('Task', secondary=assignee, back_populates='users')
     
     def __repr__(self):
         return '<User %r>' % self.name
@@ -20,32 +25,32 @@ class Task(db.Model):
     title = db.Column(db.String(30), nullable=False, unique=True)
     creator = db.Column(db.Integer, db.ForeignKey('user.id_user'), nullable=False)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
-    subtasks = db.relationship('SubTask', backref='task', lazy=True)
+    #subtasks = db.relationship('SubTask', backref='task', lazy=True)
+    users = db.relationship('User', secondary=assignee, back_populates='tasks')
 
     def __repr__(self):
         return '<Task %r>' % self.title
 
 class SubTask(db.Model):
     id_subtask = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), nullable=False, unique=True) 
-    status = db.Column(db.Integer, default=1) 
-    id_task = db.Column(db.Integer, db.ForeignKey('task.id_task'), nullable=False, unique=True)
+    title = db.Column(db.String(100), nullable=False) 
+    status = db.Column(db.Integer, default=1, nullable=False) 
+    id_task = db.Column(db.Integer, db.ForeignKey('task.id_task'), nullable=False)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
         return '<Subtask %r>' % self.title
 
-assignee = db.Table('assignee',
-    db.Column('id_user', db.Integer, db.ForeignKey('user.id_user')),
-    db.Column('id_task', db.Integer, db.ForeignKey('task.id_task'))
-)
 
 id_task = 0
 @app.route('/', methods=['POST', 'GET'])
 def add_task():
-    id_user = 1
+    id_user = 2
     global id_task
-    tasks = Task.query.filter_by(creator=id_user).order_by(Task.date_created).all()
+    #tasks = Task.query.filter_by(creator=id_user).order_by(Task.date_created).all()
+    tasks = Task.query.join(Task.users).filter(User.id_user == id_user).all()
+    # for t in ass_task:
+    #     tasks.append(t)
     subTasks = SubTask.query.filter_by(id_task=id_task).all()
     
      
@@ -61,6 +66,8 @@ def add_task():
             try:
                 task_content = request.form['add_task']
                 new_task = Task(title=task_content, creator=id_user)
+                user = User.query.get(id_user)
+                new_task.users.append(user)
                 db.session.add(new_task)
                 db.session.commit()
                 task = Task.query.order_by(Task.date_created.desc()).first()
@@ -102,12 +109,33 @@ def add_task():
         elif 'edit_subTask' in request.form:
             subTask_content = request.form['edit_subTask']
             id_subTask = request.form['id_subTask']
+            subTask_state = request.form['subTask_state']
             SubTask.query.filter_by(id_subtask=id_subTask).update({SubTask.title: subTask_content})
+            SubTask.query.filter_by(id_subtask=id_subTask).update({SubTask.status: subTask_state})
             db.session.commit()
             task = Task.query.get(id_task)
             subTasks = SubTask.query.filter_by(id_task=id_task).all()
             return render_template('test.html', task=task, subTasks=subTasks, tasks=tasks, id_task=id_task)
-
+        # Ajout d'une personne sur une tache
+        elif 'add_assignee' in request.form: 
+            try:
+                new_assignee = request.form['add_assignee']
+                new_assignee = User.query.filter_by(name=new_assignee).all()
+                new_assignee = new_assignee[0]
+                task = Task.query.get(id_task)
+                task.users.append(new_assignee)
+                db.session.add(task)
+                db.session.commit()    
+                subTasks = SubTask.query.filter_by(id_task=id_task).all()                
+                errorMessage = 'utilisateur ajouté'                       
+                return render_template('test.html', task=task, subTasks=subTasks, tasks=tasks, id_task=id_task, errorMessage=errorMessage)
+            except:
+                db.session.rollback()
+                task = Task.query.get(id_task)
+                subTasks = SubTask.query.filter_by(id_task=id_task).all()
+                tasks = Task.query.filter_by(creator=id_user).order_by(Task.date_created).all()
+                errorMessage = 'utilisateur inexistant'
+                return render_template('test.html', task=task, subTasks=subTasks, tasks=tasks, id_task=id_task, errorMessage=errorMessage)
     else: 
         task = Task.query.get(id_task)
         return render_template('test.html', task=task, subTasks=subTasks, tasks=tasks, id_task=id_task)

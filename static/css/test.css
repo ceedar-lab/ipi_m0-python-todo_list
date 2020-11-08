@@ -29,7 +29,7 @@
     background: rgba(255,255,0,0.6);;
     height: 8%;
 }
-#form_addTask, #form_removeTask {
+#form_addTask, #form_removeTask, #form_addAssignee {
     position: absolute;
     bottom: -75px;
 }
@@ -59,4 +59,7 @@
 }
 .-sb {
     justify-content: space-between;
+}
+.-line {
+    text-decoration: line-through;
 }

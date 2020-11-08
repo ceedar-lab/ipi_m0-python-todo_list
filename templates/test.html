@@ -13,7 +13,6 @@
             <button id="button_addTask">+ Add Task</button>
             <button id="button_removeTask">- Remove Task</button>
             <button id="button_addAssignee">+ Add Ass</button>
-            <p>{{ id_task }}</p>
             <form action="/" method="post" id="form_addTask" class="-hide">
                 <input type="text" name="add_task" id="">
                 <input type="submit" value="Ajouter">
@@ -56,13 +55,17 @@
             {% for subTask in subTasks %}
                 <form action="/" method="POST" class="subTaskList__subTask">
                     <div class="subTaskList__title">
-                        <p>{{ subTask.title }}</p>
+                        <div class="-row">
+                            <input type="checkbox" name="" id="" class="subTask_validator" data-subtask-state="{{ subTask.status }}">
+                            <p>{{ subTask.title }}</p>
+                        </div>
                         <div class="form_editSubTask -hide">
                             <input type="text" name="edit_subTask" value="{{ subTask.title }}">
                             <input type="submit" value="OK">
                         </div>
                     </div>
                     <input type="hidden" name="id_subTask" value="{{ subTask.id_subtask }}">
+                    <input type="hidden" name="subTask_state" class="subTask_state" value=1>
                     <button type="button" class="button_editSubTask">Edit</button>
                     <button name="remove_subTask">Del</button>
                 </form>                
