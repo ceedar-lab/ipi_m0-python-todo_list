@@ -1,6 +1,8 @@
 let form_addTask = { 'state': 0 }
 let form_removeTask = { 'state': 0 }
+let form_addAssignee = { 'state': 0 }
 let form_addSubTask = { 'state': 0 }
+let errorMessage = { 'state': 0 }
 let form_editSubTask = []
 for (let i = 0; i < document.getElementsByClassName("button_editSubTask").length; i++) {
     form_editSubTask[i] = 0
@@ -8,12 +10,15 @@ for (let i = 0; i < document.getElementsByClassName("button_editSubTask").length
 
 addTask()
 removeTask()
+addAssignee()
 addSubTask()
 editSubTask()
+taskAlreadyExists()
 
 function addTask() { 
     document.getElementById('button_addTask').addEventListener('click', () => {
         if (form_removeTask.state == 1) { hide('removeTask_confirm', form_removeTask); hide('noTask_alert', form_removeTask) }
+        if (form_addAssignee.state == 1) hide ('form_addAssignee', form_addAssignee)
         if (form_addTask.state == 0) show('form_addTask', form_addTask)
         else hide('form_addTask', form_addTask)        
     })
@@ -23,9 +28,19 @@ function removeTask() {
     let form = document.getElementById("form_removeTask")
     document.getElementById("button_removeTask").addEventListener('click', () => {
         if (form_addTask.state == 1) hide('form_addTask', form_addTask)
+        if (form_addAssignee.state == 1) hide ('form_addAssignee', form_addAssignee)
         if (form.dataset.idTask == 0 && form_removeTask.state == 0) show('noTask_alert', form_removeTask)
         else if (form.dataset.idTask != 0 && form_removeTask.state == 0) show('removeTask_confirm', form_removeTask)
         else { hide('removeTask_confirm', form_removeTask); hide('noTask_alert', form_removeTask) }
+    })
+}
+
+function addAssignee() { 
+    document.getElementById('button_addAssignee').addEventListener('click', () => {
+        if (form_addTask.state == 1) hide('form_addTask', form_addTask)
+        if (form_removeTask.state == 1) { hide('removeTask_confirm', form_removeTask); hide('noTask_alert', form_removeTask) }
+        if (form_addAssignee.state == 0) show('form_addAssignee', form_addAssignee)
+        else hide('form_addAssignee', form_addAssignee)        
     })
 }
 
@@ -49,6 +64,15 @@ function editSubTask() {
             })
         }        
     }    
+}
+
+function taskAlreadyExists() {
+    if (document.getElementById('errorMessage_content').textContent != '') {
+        if (errorMessage.state == 0) show('errorMessage', errorMessage) 
+    }
+    document.getElementById('errorMessage_ok').addEventListener('click', () => {
+        if (errorMessage.state == 1) hide('errorMessage', errorMessage) 
+    })
 }
 
 function show(id, form, i) {

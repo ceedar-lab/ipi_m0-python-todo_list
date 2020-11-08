@@ -37,6 +37,9 @@
     position: absolute;
     top: -5px;
 }
+.form_editSubTask input[type=text] {
+    width: 75%;
+}
 .subTaskList__title {
     position: relative;
 }
