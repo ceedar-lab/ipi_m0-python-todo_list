@@ -8,8 +8,6 @@ for (let i = 0; i < document.getElementsByClassName("button_editSubTask").length
     form_editSubTask[i] = 0
 }
 
-console.log(document.getElementsByClassName("subTask_validator").length)
-
 addTask()
 removeTask()
 addAssignee()
@@ -41,8 +39,7 @@ function subTaskValidator() {
 
 function addTask() { 
     document.getElementById('button_addTask').addEventListener('click', () => {
-        if (form_removeTask.state == 1) { hide('removeTask_confirm', form_removeTask); hide('noTask_alert', form_removeTask) }
-        if (form_addAssignee.state == 1) hide ('form_addAssignee', form_addAssignee)
+        hideAll('form_addTask')
         if (form_addTask.state == 0) show('form_addTask', form_addTask)
         else hide('form_addTask', form_addTask)        
     })
@@ -51,8 +48,7 @@ function addTask() {
 function removeTask() {
     let form = document.getElementById("form_removeTask")
     document.getElementById("button_removeTask").addEventListener('click', () => {
-        if (form_addTask.state == 1) hide('form_addTask', form_addTask)
-        if (form_addAssignee.state == 1) hide ('form_addAssignee', form_addAssignee)
+        hideAll('removeTask_confirm')
         if (form.dataset.idTask == 0 && form_removeTask.state == 0) show('noTask_alert', form_removeTask)
         else if (form.dataset.idTask != 0 && form_removeTask.state == 0) show('removeTask_confirm', form_removeTask)
         else { hide('removeTask_confirm', form_removeTask); hide('noTask_alert', form_removeTask) }
@@ -61,8 +57,7 @@ function removeTask() {
 
 function addAssignee() { 
     document.getElementById('button_addAssignee').addEventListener('click', () => {
-        if (form_addTask.state == 1) hide('form_addTask', form_addTask)
-        if (form_removeTask.state == 1) { hide('removeTask_confirm', form_removeTask); hide('noTask_alert', form_removeTask) }
+        hideAll('form_addAssignee')
         if (form_addAssignee.state == 0) show('form_addAssignee', form_addAssignee)
         else hide('form_addAssignee', form_addAssignee)        
     })
@@ -72,6 +67,7 @@ function addSubTask() {
     let button = document.getElementById("button_addSubTask")
     if (button) {
         button.addEventListener('click', () => {
+            hideAll('form_addSubTask')
             if (form_addSubTask.state == 0) show('form_addSubTask', form_addSubTask) 
             else hide('form_addSubTask', form_addSubTask) 
         })
@@ -82,7 +78,8 @@ function editSubTask() {
     let button = document.getElementsByClassName("button_editSubTask")
     if (button) {        
         for (let i = 0; i < button.length; i++) {
-            button[i].addEventListener('click', () => {            
+            button[i].addEventListener('click', () => {
+                hideAll('form_editSubTask')
                 if (form_editSubTask[i] == 0 ) show("form_editSubTask", form_editSubTask, i)
                 else hide("form_editSubTask", form_editSubTask, i)
             })
@@ -107,6 +104,26 @@ function show(id, form, i) {
         document.querySelectorAll("."+id)[i].classList.remove('-hide')
         form[i] = 1
     }    
+}
+
+function hideAll(exception) {
+    if (exception != 'form_addTask') {
+        if (form_addTask.state == 1) hide('form_addTask', form_addTask)
+    }
+    if (exception != 'removeTask_confirm') {
+        if (form_removeTask.state == 1) { hide('removeTask_confirm', form_removeTask); hide('noTask_alert', form_removeTask) }
+    }
+    if (exception != 'form_addAssignee') {
+        if (form_addAssignee.state == 1) hide ('form_addAssignee', form_addAssignee)
+    }
+    if (exception != 'form_addSubTask') {
+        if (form_addSubTask.state == 1 ) hide("form_addSubTask", form_addSubTask)
+    }
+    if (exception != 'form_editSubTask') {
+        for (let i = 0; i < document.getElementsByClassName("button_editSubTask").length; i++) {           
+            if (form_editSubTask[i] == 1 ) hide("form_editSubTask", form_editSubTask, i)
+        }
+    }
 }
 
 function hide(id, form, i) {
