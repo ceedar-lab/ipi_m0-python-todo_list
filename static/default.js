@@ -4,7 +4,7 @@ let form_addAssignee = { 'state': 0 }
 let form_addSubTask = { 'state': 0 }
 let errorMessage = { 'state': 0 }
 let form_editSubTask = []
-for (let i = 0; i < document.getElementsByClassName("button_editSubTask").length; i++) {
+for (let i = 0; i < document.getElementsByClassName("fa-edit").length; i++) {
     form_editSubTask[i] = 0
 }
 
@@ -15,6 +15,7 @@ addSubTask()
 editSubTask()
 taskAlreadyExists()
 subTaskValidator()
+removeSubTask()
 
 function subTaskValidator() {
     let subTask_validator = document.getElementsByClassName("subTask_validator")
@@ -47,20 +48,26 @@ function addTask() {
 
 function removeTask() {
     let form = document.getElementById("form_removeTask")
-    document.getElementById("button_removeTask").addEventListener('click', () => {
-        hideAll('removeTask_confirm')
-        if (form.dataset.idTask == 0 && form_removeTask.state == 0) show('noTask_alert', form_removeTask)
-        else if (form.dataset.idTask != 0 && form_removeTask.state == 0) show('removeTask_confirm', form_removeTask)
-        else { hide('removeTask_confirm', form_removeTask); hide('noTask_alert', form_removeTask) }
-    })
+    let button = document.getElementById("button_removeTask")
+    if (button) {
+        button.addEventListener('click', () => {
+            hideAll('removeTask_confirm')
+            if (form.dataset.idTask == 0 && form_removeTask.state == 0) show('noTask_alert', form_removeTask)
+            else if (form.dataset.idTask != 0 && form_removeTask.state == 0) show('removeTask_confirm', form_removeTask)
+            else { hide('removeTask_confirm', form_removeTask); hide('noTask_alert', form_removeTask) }
+        })
+    }
 }
 
 function addAssignee() { 
-    document.getElementById('button_addAssignee').addEventListener('click', () => {
-        hideAll('form_addAssignee')
-        if (form_addAssignee.state == 0) show('form_addAssignee', form_addAssignee)
-        else hide('form_addAssignee', form_addAssignee)        
-    })
+    let button = document.getElementById("button_addAssignee")
+    if (button) {
+        document.getElementById('button_addAssignee').addEventListener('click', () => {
+            hideAll('form_addAssignee')
+            if (form_addAssignee.state == 0) show('form_addAssignee', form_addAssignee)
+            else hide('form_addAssignee', form_addAssignee)        
+        })
+    }
 }
 
 function addSubTask() {
@@ -74,17 +81,52 @@ function addSubTask() {
     }    
 }
 
+(function onDropDownHideOthers() {
+    let button = document.getElementById("dropDown__task_button")
+    button.addEventListener('click', (e) => {
+        if (e.target.checked || !e.target.checked) {
+            hideAll('x')
+            for (let j = 0; j < document.getElementsByClassName("fa-edit").length; j++) {
+                document.getElementsByClassName("subTask_title")[j].classList.remove("-hide")
+            }
+        }       
+    })
+})()
+
 function editSubTask() {
-    let button = document.getElementsByClassName("button_editSubTask")
+    let button = document.getElementsByClassName("fa-edit")
     if (button) {        
         for (let i = 0; i < button.length; i++) {
             button[i].addEventListener('click', () => {
+                let but = document.getElementById("dropDown__task_button")
+                if (but.checked) but.checked = false
                 hideAll('form_editSubTask')
-                if (form_editSubTask[i] == 0 ) show("form_editSubTask", form_editSubTask, i)
-                else hide("form_editSubTask", form_editSubTask, i)
+                if (form_editSubTask[i] == 0 ) {
+                    for (let j = 0; j < button.length; j++) {
+                        hide("form_editSubTask", form_editSubTask, j)
+                        document.getElementsByClassName("subTask_title")[j].classList.remove("-hide")
+                    }
+                    document.getElementsByClassName("subTask_title")[i].classList.add("-hide")
+                    show("form_editSubTask", form_editSubTask, i)
+                }
+                else {
+                    hide("form_editSubTask", form_editSubTask, i)
+                    document.getElementsByClassName("subTask_title")[i].classList.remove("-hide")
+                }
             })
         }        
     }    
+}
+
+function removeSubTask() {
+    let button = document.getElementsByClassName("fa-trash-alt")
+    if (button) {        
+        for (let i = 0; i < button.length; i++) {
+            button[i].addEventListener('click', () => {
+                document.getElementsByClassName("button_removeSubTask")[i].click()
+            })
+        }
+    }
 }
 
 function taskAlreadyExists() {
@@ -120,7 +162,7 @@ function hideAll(exception) {
         if (form_addSubTask.state == 1 ) hide("form_addSubTask", form_addSubTask)
     }
     if (exception != 'form_editSubTask') {
-        for (let i = 0; i < document.getElementsByClassName("button_editSubTask").length; i++) {           
+        for (let i = 0; i < document.getElementsByClassName("fa-edit").length; i++) {           
             if (form_editSubTask[i] == 1 ) hide("form_editSubTask", form_editSubTask, i)
         }
     }
