@@ -34,6 +34,7 @@ li {
     justify-content: center;
 }
 .task__title > h2 {
+    text-align: center;
     font-size: 36px;
     width: 360px;
     height: 50px;
