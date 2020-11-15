@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <link rel="stylesheet" href="/static/connexion.css">
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+</head>
+
+<body class="body">
+   <div>
+      <h1>Connexion au Dashboard</h1>
+      <form id="form__login" action="/login" method="POST">
+         <div id="form__login_field">
+            <span>
+               <i class="glyphicon glyphicon-user"></i>
+            </span>
+            <label for="login">Login</label>&nbsp;
+            <input type="text" name="name" placeholder="login..." required autocomplete="off">&nbsp;&nbsp;
+            <span>
+               <i class="glyphicon glyphicon-lock"></i>
+            </span>
+            <label for="mdp">Mot de passe</label>&nbsp;
+            <input type="password" name="password" placeholder="mot de passe..." required autocomplete="off">
+         </div> 
+         <div id="errorMessage" class="-hide">
+            <p id="errorMessage_content">{{ error_message }}</p>
+         </div>
+         <div id="form__login_submit">    
+            <input type="submit"  name="signin" value="se connecter">             
+            <input type="submit" name="signup" value="inscription">
+         </div> 
+      </form>
+      <script>if (document.getElementById("errorMessage_content").textContent != "") document.getElementById("errorMessage").classList.remove('-hide');</script>
+   </div>
+</body>
+
+</html>
