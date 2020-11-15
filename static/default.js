@@ -182,4 +182,22 @@ function hide(id, form, i) {
     document.getElementById("taskList").addEventListener('change', () => {
         document.getElementById("form_taskList").submit()
     })
-})()
+})();
+
+(function autoSubmitPrev() {
+    let chevron = document.getElementById("chevron-left")
+    if (chevron) {
+        chevron.addEventListener('click', () => {
+            document.getElementById("form_prevPage").submit()
+        })
+    }
+})();
+
+(function autoSubmitNext() {
+    let chevron = document.getElementById("chevron-right")
+    if (chevron) {
+        chevron.addEventListener('click', () => {
+            document.getElementById("form_nextPage").submit()
+        })
+    }
+})();

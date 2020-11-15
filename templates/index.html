@@ -10,6 +10,7 @@
     <title>Document</title>
 </head>
 <body>
+    <p>{{id_task}}</p>
     <div id="todoList" class="widget__content_todoList">
         <div class="todoList__head">            
             <div class="todoList__head_title -col">
@@ -25,22 +26,22 @@
                 <label for="dropDown__task_button">
                     <i class="fas fa-ellipsis-v"></i>
                 </label>
-                <input id="dropDown__task_button" type="checkbox" name="" id="">
+                <input id="dropDown__task_button" type="checkbox">
                 <ul id="dropDown__content">
                     <li><button id="button_addTask">+ Add Task</button></li>
                     {% if task.id_task != null %}
                     <li><button id="button_removeTask">- Remove Task</button></li>
-                    <li><button id="button_addAssignee">+ Add Ass</button></li>
+                    <li><button id="button_addAssignee">+ Add User</button></li>
                     <li><button id="button_addSubTask">+ Add SubTask</button></li>
                     {% endif %}
                     <li>
                         <form action="/" method="post" id="form_addTask" class="-hide">
                             <div class="-row">
-                                <input type="text" name="add_task" id="">
+                                <input type="text" name="add_task" autocomplete="off" placeholder="Max 20 caractères">
                                 <input type="submit" value="Ajouter">
                             </div>
                         </form>
-                        <form action="/" method="post" id="form_removeTask" class="" data-id-task="{{ task.id_task }}">
+                        <form action="/" method="post" id="form_removeTask" data-id-task="{{ task.id_task }}">
                             <p id="noTask_alert" class="-hide">Aucune tache selectionée</p>
                             <div id="removeTask_confirm" class="-hide">
                                 <div>
@@ -54,13 +55,13 @@
                         </form>
                         <form action="/" method="post" id="form_addAssignee" class="-hide">
                             <div class="-row">
-                                <input type="text" name="add_assignee" id="">
+                                <input type="text" name="add_assignee" autocomplete="off">
                                 <input type="submit" value="Search">
                             </div>
                         </form>
                         <form action="/" method="post" id="form_addSubTask" class="-hide">
                             <div class="-row">
-                                <input type="text" name="add_subTask" id="">
+                                <input type="text" name="add_subTask" autocomplete="off" placeholder="Max 25 caractères">
                                 <input type="submit" value="Ajouter">
                             </div>
                         </form>
@@ -76,16 +77,16 @@
                 </div>
             </div>
             <div>
-            {% for subTask in subTasks %}
+            {% for subTask in subTasks.items %}
                 <form action="/" method="POST" class="subTaskList__subTask -row -sb">
                     <div class="subTaskList__title">
                         <div class="-row">
-                            <input type="checkbox" name="" id="" class="subTask_validator" data-subtask-state="{{ subTask.status }}">
+                            <input type="checkbox" class="subTask_validator" data-subtask-state="{{ subTask.status }}">
                             <p class="subTask_title">{{ subTask.title }}</p>
                         </div>
                         <div class="form_editSubTask -hide">
                             <input type="submit" value="OK">
-                            <input type="text" name="edit_subTask" value="{{ subTask.title }}">
+                            <input type="text" name="edit_subTask" value="{{ subTask.title }}" autocomplete="off">
                         </div>
                     </div>
                     <input type="hidden" name="id_subTask" value="{{ subTask.id_subtask }}">
@@ -108,6 +109,18 @@
                     {% endfor %}
                 </select>
             </form>
+            {% if subTasks.has_prev %}     
+                <form action="/" method="POST" id="form_prevPage">
+                    <input type="hidden" name="prevPage" value="{{ subTasks.page - 1 }}">
+                    <i class="fas fa-chevron-left" id="chevron-left"></i>
+                </form>
+            {% endif %}
+            {% if subTasks.has_next %}     
+                <form action="/" method="POST" id="form_nextPage">
+                    <input type="hidden" name="nextPage" value="{{ subTasks.page + 1 }}">
+                    <i class="fas fa-chevron-right" id="chevron-right"></i>
+                </form>
+            {% endif %}
         </div>
     </div>
 </body>
