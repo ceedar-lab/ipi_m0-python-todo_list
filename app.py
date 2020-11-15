@@ -8,38 +8,55 @@ error, he can of course edit the subtask previously created.
 User also has the possibility to share his task with another user by enter his
 name in text area meant for that purpose. When task is shared, all actions,
 additions of subtasks, deletions will be propagated at all user.
+
+default user : root.
+default password : root.
 """
 
-__author__ = ("Clément Daroit")
+__author__ = ("Clément Daroit", "Manahel Bouchkara")
 __contact__ = ("ceedar.lab@gmail.com")
 __version__ = "1.1"
 __date__ = "2020-11-14"
 
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin, LoginManager, login_required, login_user
+from flask_login import logout_user, current_user
 from datetime import datetime
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = 'secretkey'
 db = SQLAlchemy(app)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+
+@login_manager.user_loader
+def load_user(id):
+    """Flask-Login session management."""
+    return User.query.get(id)
+
 
 # Joining table between User and Task
 assignee = db.Table(
     'assignee',
-    db.Column('id_user', db.Integer, db.ForeignKey('user.id_user')),
+    db.Column('id', db.Integer, db.ForeignKey('user.id')),
     db.Column('id_task', db.Integer, db.ForeignKey('task.id_task'))
 )
 
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     """Table of users.
 
     Many-to-many relationship with Task.
     """
 
-    id_user = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), nullable=False, unique=True)
+    password = db.Column(db.String(50), nullable=False)
     tasks = db.relationship('Task', secondary=assignee, back_populates='users')
 
     def __repr__(self):
@@ -55,10 +72,9 @@ class Task(db.Model):
     """
 
     id_task = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(30), db.CheckConstraint(
-        'length(title) <= 20'), nullable=False, unique=True)
+    title = db.Column(db.String(20), nullable=False, unique=True)
     creator = db.Column(
-        db.Integer, db.ForeignKey('user.id_user'),
+        db.Integer, db.ForeignKey('user.id'),
         nullable=False)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
     users = db.relationship('User', secondary=assignee, back_populates='tasks')
@@ -75,8 +91,7 @@ class SubTask(db.Model):
     """
 
     id_subtask = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), db.CheckConstraint(
-        'length(title) <= 25'), nullable=False)
+    title = db.Column(db.String(25), nullable=False)
     status = db.Column(db.Integer, default=1, nullable=False)
     id_task = db.Column(
         db.Integer, db.ForeignKey('task.id_task'),
@@ -93,7 +108,63 @@ id_task = 0
 page_num = 1
 
 
-@app.route('/', methods=['POST', 'GET'])
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    """Login page."""
+    return render_template('connexion.html')
+
+
+@app.route('/error', methods=['GET', 'POST'])
+def indexError():
+    """Login page - connexion error."""
+    error_message = request.args['error_message']
+    return render_template('connexion.html', error_message=error_message)
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """Login or Register.
+
+    Powered by Flask-Login.
+    Error message is sent to connection page in case of wrong password or
+    in case of already existing user.
+    """
+    if 'signup' in request.form:
+        name = request.form['name']
+        password = request.form['password']
+        user = User.query.filter_by(name=name).first()
+        if user:
+            error_message = "Ce nom d'utilisateur est déjà utilisé"
+            return redirect(
+                url_for('.indexError', error_message=error_message))
+        new_user = User(name=name, password=password)
+        db.session.add(new_user)
+        db.session.commit()
+        user = User.query.filter_by(name=name).first()
+        login_user(user)
+        return redirect('/dash')
+    if 'signin' in request.form:
+        name = request.form['name']
+        password = request.form['password']
+        user = User.query.filter_by(name=name).first()
+        if not user or (user and password != user.password):
+            error_message = "Nom d'utilisateur ou mot de passe incorrect"
+            return redirect(
+                url_for('.indexError', error_message=error_message))
+        login_user(user)
+        return redirect('/dash')
+
+
+@app.route('/logout', methods=['GET', 'POST'])
+@login_required
+def logout():
+    """Close user session."""
+    logout_user()
+    return redirect('/')
+
+
+@app.route('/dash', methods=['POST', 'GET'])
+@login_required
 def widget_functionalities():
     """Widget functionalities.
 
@@ -101,10 +172,10 @@ def widget_functionalities():
     Allows to create, delete, edit tasks and subtasks.
     Allows to share a task with another user.
     """
-    id_user = 1
+    id = current_user.id
     global id_task
     global page_num
-    tasks = Task.query.join(Task.users).filter(User.id_user == id_user).all()
+    tasks = Task.query.join(Task.users).filter(User.id == id).all()
 
     def show(id, num):
         global id_task
@@ -138,7 +209,7 @@ def widget_functionalities():
                 task_content = request.form['add_task']
                 if task_content == "" or len(task_content) > 20:
                     show = show(id_task, page_num)
-                    tasks = Task.query.filter_by(creator=id_user).order_by(
+                    tasks = Task.query.filter_by(creator=id).order_by(
                         Task.date_created).all()
                     errorMessage = "Veuillez entrer un titre valide"
                     return render_template(
@@ -146,15 +217,15 @@ def widget_functionalities():
                         task=show[0], subTasks=show[1], tasks=tasks,
                         errorMessage=errorMessage)
                 else:
-                    new_task = Task(title=task_content, creator=id_user)
-                    user = User.query.get(id_user)
+                    new_task = Task(title=task_content, creator=id)
+                    user = User.query.get(id)
                     new_task.users.append(user)
                     db.session.add(new_task)
                     db.session.commit()
                     task = Task.query.order_by(
                         Task.date_created.desc()).first()
                     show = show(task.id_task, 1)
-                    tasks = Task.query.filter_by(creator=id_user).order_by(
+                    tasks = Task.query.filter_by(creator=id).order_by(
                         Task.date_created).all()
                     return render_template(
                         'index.html', task=show[0], subTasks=show[1],
@@ -163,7 +234,7 @@ def widget_functionalities():
             except Exception:
                 db.session.rollback()
                 show = show(id_task, page_num)
-                tasks = Task.query.filter_by(creator=id_user).order_by(
+                tasks = Task.query.filter_by(creator=id).order_by(
                     Task.date_created).all()
                 errorMessage = "Cette tâche existe déjà"
                 return render_template(
@@ -177,13 +248,13 @@ def widget_functionalities():
             task.users.clear()
             db.session.delete(task)
             db.session.commit()
-            return redirect('/')
+            return redirect('/dash')
         # Allows to create new subtask
         elif 'add_subTask' in request.form:
             subTask_content = request.form['add_subTask']
             if subTask_content == "" or len(subTask_content) > 25:
                 show = show(id_task, page_num)
-                tasks = Task.query.filter_by(creator=id_user).order_by(
+                tasks = Task.query.filter_by(creator=id).order_by(
                     Task.date_created).all()
                 errorMessage = "Veuillez entrer un titre valide"
                 return render_template(
@@ -247,4 +318,5 @@ def widget_functionalities():
     else:
         show = show(0, 1)
         return render_template(
-            'index.html', task=show[0], subTasks=show[1], tasks=tasks)
+            'index.html', task=show[0], subTasks=show[1], tasks=tasks,
+            current_user=current_user)

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,8 +10,10 @@
     <script type="text/javascript" src="/static/default.js" async></script>
     <title>Document</title>
 </head>
+
 <body>
-    <p>{{id_task}}</p>
+    <a href="/logout">Deconnexion</a>
+    <h1>Bonjour {{ current_user.name }} !</h1>
     <div id="todoList" class="widget__content_todoList">
         <div class="todoList__head">            
             <div class="todoList__head_title -col">
@@ -35,13 +38,13 @@
                     <li><button id="button_addSubTask">+ Add SubTask</button></li>
                     {% endif %}
                     <li>
-                        <form action="/" method="post" id="form_addTask" class="-hide">
+                        <form action="/dash" method="post" id="form_addTask" class="-hide">
                             <div class="-row">
                                 <input type="text" name="add_task" autocomplete="off" placeholder="Max 20 caractères">
                                 <input type="submit" value="Ajouter">
                             </div>
                         </form>
-                        <form action="/" method="post" id="form_removeTask" data-id-task="{{ task.id_task }}">
+                        <form action="/dash" method="post" id="form_removeTask" data-id-task="{{ task.id_task }}">
                             <p id="noTask_alert" class="-hide">Aucune tache selectionée</p>
                             <div id="removeTask_confirm" class="-hide">
                                 <div>
@@ -53,13 +56,13 @@
                                 </div>
                             </div>
                         </form>
-                        <form action="/" method="post" id="form_addAssignee" class="-hide">
+                        <form action="/dash" method="post" id="form_addAssignee" class="-hide">
                             <div class="-row">
                                 <input type="text" name="add_assignee" autocomplete="off">
                                 <input type="submit" value="Search">
                             </div>
                         </form>
-                        <form action="/" method="post" id="form_addSubTask" class="-hide">
+                        <form action="/dash" method="post" id="form_addSubTask" class="-hide">
                             <div class="-row">
                                 <input type="text" name="add_subTask" autocomplete="off" placeholder="Max 25 caractères">
                                 <input type="submit" value="Ajouter">
@@ -78,7 +81,7 @@
             </div>
             <div>
             {% for subTask in subTasks.items %}
-                <form action="/" method="POST" class="subTaskList__subTask -row -sb">
+                <form action="/dash" method="POST" class="subTaskList__subTask -row -sb">
                     <div class="subTaskList__title">
                         <div class="-row">
                             <input type="checkbox" class="subTask_validator" data-subtask-state="{{ subTask.status }}">
@@ -101,7 +104,7 @@
             </div>
         </div>
         <div class="todoList todoList__foot">
-            <form action="/" method="POST" id="form_taskList">
+            <form action="/dash" method="POST" id="form_taskList">
                 <select name="taskList" id="taskList">
                     <option selected hidden>Choisissez une tache</option>
                     {% for task in tasks %}
@@ -110,13 +113,13 @@
                 </select>
             </form>
             {% if subTasks.has_prev %}     
-                <form action="/" method="POST" id="form_prevPage">
+                <form action="/dash" method="POST" id="form_prevPage">
                     <input type="hidden" name="prevPage" value="{{ subTasks.page - 1 }}">
                     <i class="fas fa-chevron-left" id="chevron-left"></i>
                 </form>
             {% endif %}
             {% if subTasks.has_next %}     
-                <form action="/" method="POST" id="form_nextPage">
+                <form action="/dash" method="POST" id="form_nextPage">
                     <input type="hidden" name="nextPage" value="{{ subTasks.page + 1 }}">
                     <i class="fas fa-chevron-right" id="chevron-right"></i>
                 </form>
