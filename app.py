@@ -22,6 +22,7 @@ from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, LoginManager, login_required, login_user
 from flask_login import logout_user, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
 app = Flask(__name__)
@@ -137,7 +138,8 @@ def login():
             error_message = "Ce nom d'utilisateur est déjà utilisé"
             return redirect(
                 url_for('.indexError', error_message=error_message))
-        new_user = User(name=name, password=password)
+        new_user = User(name=name, password=generate_password_hash(
+            password, method='sha256'))
         db.session.add(new_user)
         db.session.commit()
         user = User.query.filter_by(name=name).first()
@@ -147,7 +149,8 @@ def login():
         name = request.form['name']
         password = request.form['password']
         user = User.query.filter_by(name=name).first()
-        if not user or (user and password != user.password):
+        if not user or (user and not check_password_hash(user.password,
+                                                         password)):
             error_message = "Nom d'utilisateur ou mot de passe incorrect"
             return redirect(
                 url_for('.indexError', error_message=error_message))
