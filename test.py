@@ -35,10 +35,9 @@ def index():
                 return render_template ("index.html")
 
         
-
-        else:
+            else:
             
-            return render_template('Connexion.html')
+                return render_template('Connexion.html')
                 #return render_template('Inscription.html')
             
 
