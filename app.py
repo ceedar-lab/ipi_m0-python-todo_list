@@ -1,5 +1,15 @@
 """Todo_List widget.
 
+### IMPORTANT ###
+
+To create the initial database, you have to type these 2 command lines in an
+interactive Python shell :
+
+>>> from app import db
+>>> db.create_all()
+
+### DESCRIPTION ###
+
 This script allows to create a simple todo list widget. User has to create an
 account to access to widget. He can then add task main tasks and subtasks. When
 subtask is done, user can delete it, or just mark it as "done". In case of
@@ -9,8 +19,8 @@ User also has the possibility to share his task with another user by enter his
 name in text area meant for that purpose. When task is shared, all actions,
 additions of subtasks, deletions will be propagated at all user.
 
-default user : root.
-default password : root.
+Concerning the user session part, password is encrypted, and as said above,
+access to the widget will be forbidden if user isn't registered or identified.
 """
 
 __author__ = ("Clément Daroit", "Manahel Bouchkara")
