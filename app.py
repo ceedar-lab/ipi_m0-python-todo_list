@@ -147,14 +147,14 @@ def login():
         if user:
             error_message = "Ce nom d'utilisateur est déjà utilisé"
             return redirect(
-                url_for('.indexError', error_message=error_message))
+                url_for('indexError', error_message=error_message))
         new_user = User(name=name, password=generate_password_hash(
             password, method='sha256'))
         db.session.add(new_user)
         db.session.commit()
         user = User.query.filter_by(name=name).first()
         login_user(user)
-        return redirect('/dash')
+        return redirect(url_for('widget_functionalities'))
     if 'signin' in request.form:
         name = request.form['name']
         password = request.form['password']
@@ -163,9 +163,9 @@ def login():
                                                          password)):
             error_message = "Nom d'utilisateur ou mot de passe incorrect"
             return redirect(
-                url_for('.indexError', error_message=error_message))
+                url_for('indexError', error_message=error_message))
         login_user(user)
-        return redirect('/dash')
+        return redirect(url_for('widget_functionalities'))
 
 
 @app.route('/logout', methods=['GET', 'POST'])
@@ -173,7 +173,7 @@ def login():
 def logout():
     """Close user session."""
     logout_user()
-    return redirect('/')
+    return redirect(url_for('index'))
 
 
 @app.route('/dash', methods=['POST', 'GET'])
@@ -261,7 +261,7 @@ def widget_functionalities():
             task.users.clear()
             db.session.delete(task)
             db.session.commit()
-            return redirect('/dash')
+            return redirect(url_for('widget_functionalities'))
         # Allows to create new subtask
         elif 'add_subTask' in request.form:
             subTask_content = request.form['add_subTask']
